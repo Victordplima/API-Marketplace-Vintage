@@ -1,0 +1,12 @@
+# Arquivos de configuração
+*.env
+
+# Node.js
+/node_modules
+
+# Arquivos de compilação
+/build
+
+# Arquivos de configuração específicos para o sistema
+.DS_Store
+Thumbs.dbs
