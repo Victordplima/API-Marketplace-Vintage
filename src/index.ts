@@ -44,6 +44,15 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const verifyAdmin = (req: Request, res: Response, next: NextFunction) => {
+    // Verificar se o usuário é admin antes de prosseguir
+    if (req.user && req.user.role === 'admin') {
+        return next();
+    }
+
+    return res.status(403).json({ message: 'Acesso não autorizado' });
+};
+
 app.use((req, res, next) => {
     res.setHeader('X-Your-Name', 'Nome');
     next();
@@ -97,7 +106,7 @@ app.get('/produtos', verifyToken, (req: Request, res: Response) => {
     res.json(paginatedProdutos);
 });
 
-// As rotas abaixo agora requerem autenticação
+// As rotas abaixo agora requerem autenticação e admin
 app.get('/produtos/:id', verifyToken, (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
     const produto = produtos.find(p => p.id === id);
@@ -109,7 +118,7 @@ app.get('/produtos/:id', verifyToken, (req: Request, res: Response) => {
     }
 });
 
-app.post('/produtos', verifyToken, (req: Request, res: Response) => {
+app.post('/produtos', verifyToken, verifyAdmin, (req: Request, res: Response) => {
     const novoProduto = req.body;
     if (!novoProduto.nome || !novoProduto.preco || !novoProduto.tamanho || !novoProduto.categoria || !novoProduto.descricao || !novoProduto.disponivel) {
         res.status(400).json({ message: 'Campos obrigatórios não preenchidos' });
@@ -119,7 +128,7 @@ app.post('/produtos', verifyToken, (req: Request, res: Response) => {
     res.status(201).json(novoProduto);
 });
 
-app.put('/produtos/:id', verifyToken, (req: Request, res: Response) => {
+app.put('/produtos/:id', verifyToken, verifyAdmin, (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
     const index = produtos.findIndex(p => p.id === id);
 
@@ -132,7 +141,7 @@ app.put('/produtos/:id', verifyToken, (req: Request, res: Response) => {
     }
 });
 
-app.delete('/produtos/:id', verifyToken, (req: Request, res: Response) => {
+app.delete('/produtos/:id', verifyToken, verifyAdmin, (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
     const index = produtos.findIndex(p => p.id === id);
 
